@@ -14,6 +14,8 @@ import (
 var ip = flag.String("addr", "127.0.0.1:8001", "Serving host and port")
 var userAuthService = flag.String("user_service", "http://localhost:8000/v1/user/auth", "User microservice downstream endpoint")
 var apiRoot = flag.String("api_root", "/v1", "api root path")
+var privKeyFile = flag.String("priv_key", "", "private key file path")
+var pubKeyFile = flag.String("pub_key", "", "public key file path")
 
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
@@ -44,6 +46,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized request", http.StatusUnauthorized)
 		return
 	}
+	w.Write([]byte("OK"))
 	return
 }
 
