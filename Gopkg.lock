@@ -2,16 +2,59 @@
 
 
 [[projects]]
-  digest = "1:d5f97fc268267ec1b61c3453058c738246fc3e746f14b1ae25161513b7367b0c"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/golang/glog"
+  packages = ["."]
+  revision = "23def4e6c14b4da8ac2ed8007337bc5eb5007998"
+
+[[projects]]
   name = "github.com/gorilla/mux"
   packages = ["."]
-  pruneopts = "UT"
   revision = "c5c6c98bc25355028a63748a498942a6398ccd22"
   version = "v1.7.1"
+
+[[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/crypto"
+  packages = [
+    "ed25519",
+    "ed25519/internal/edwards25519",
+    "pbkdf2"
+  ]
+  revision = "22d7a77e9e5f409e934ed268692e56707cd169e5"
+
+[[projects]]
+  name = "gopkg.in/square/go-jose.v2"
+  packages = [
+    ".",
+    "cipher",
+    "json",
+    "jwt"
+  ]
+  revision = "730df5f748271903322feb182be83b43ebbbe27d"
+  version = "v2.3.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/gorilla/mux"]
+  inputs-digest = "b0fdb5c48c0a86d6693400fe1cd13505459764bfd0f04e36537d7ff1637f51f0"
   solver-name = "gps-cdcl"
   solver-version = 1

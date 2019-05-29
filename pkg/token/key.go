@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/golang/glog"
+	"log"
 )
 
 func GenerateRsaKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
@@ -78,6 +78,12 @@ func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 }
 
 func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, save bool) (*rsa.PrivateKey, *rsa.PublicKey) {
+	if privKeyFile == "" {
+		privKeyFile = "./rsa.priv"
+	}
+	if pubKeyFile == "" {
+		pubKeyFile = "./rsa.pub"
+	}
 	found := true
 	if _, err := os.Stat(privKeyFile); os.IsNotExist(err) {
 		found = false
@@ -86,7 +92,7 @@ func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, save bo
 		found = false
 	}
 	if !found {
-		glog.Infof("Rsa Key files (%s, %s) not found, regenerating.", privKeyFile, pubKeyFile)
+		log.Printf("Rsa Key files (%s, %s) not found, regenerating.", privKeyFile, pubKeyFile)
 		priv, pub := GenerateRsaKeyPair()
 		privStr := ExportRsaPrivateKeyAsPemStr(priv)
 		pubStr, _ := ExportRsaPublicKeyAsPemStr(pub)
@@ -104,7 +110,7 @@ func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, save bo
 			}
 			defer fpub.Close()
 			fpub.WriteString(pubStr)
-			glog.Infof("Saving RSA key pairs to %s and %s.", privKeyFile, pubKeyFile)
+			log.Printf("Saving RSA key pairs to %s and %s.", privKeyFile, pubKeyFile)
 		}
 		return priv, pub
 	}
@@ -116,7 +122,7 @@ func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, save bo
 	if err != nil {
 		panic(err)
 	}
-	glog.Infof("Reading RSA key pairs from %s and %s.", privKeyFile, pubKeyFile)
+	log.Printf("Reading RSA key pairs from %s and %s.", privKeyFile, pubKeyFile)
 	priv, err := ParseRsaPrivateKeyFromPemStr(string(priStr))
 	if err != nil {
 		panic(err)

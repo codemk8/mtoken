@@ -8,7 +8,9 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/codemk8/mtoken/pkg/token"
 	"github.com/gorilla/mux"
+	"gopkg.in/square/go-jose.v2/jwt"
 )
 
 var ip = flag.String("addr", "127.0.0.1:8001", "Serving host and port")
@@ -16,6 +18,8 @@ var userAuthService = flag.String("user_service", "http://localhost:8000/v1/user
 var apiRoot = flag.String("api_root", "/v1", "api root path")
 var privKeyFile = flag.String("priv_key", "", "private key file path")
 var pubKeyFile = flag.String("pub_key", "", "public key file path")
+var signer token.Signer
+var verifier token.Verifier
 
 func basicAuth(username, password string) string {
 	auth := username + ":" + password
@@ -27,7 +31,7 @@ func redirectPolicyFunc(req *http.Request, via []*http.Request) error {
 	return nil
 }
 
-func loginHandler(w http.ResponseWriter, r *http.Request) {
+func issueHandler(w http.ResponseWriter, r *http.Request) {
 	username, passwd, authOK := r.BasicAuth()
 	if authOK == false {
 		http.Error(w, "Not authorized", http.StatusUnauthorized)
@@ -46,15 +50,35 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized request", http.StatusUnauthorized)
 		return
 	}
-	w.Write([]byte("OK"))
+	// Generate a token
+	claims := jwt.Claims{}
+	jwt, err := signer.Sign(&claims)
+	if err != nil {
+		fmt.Printf("Internal error %v", err)
+		http.Error(w, "Internal Error", http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte(*jwt))
 	return
 }
 
 func main() {
 	flag.Parse()
 
+	priv, pub := token.GenerateRsaKeyPairIfNotExist(*privKeyFile, *pubKeyFile, true)
+	var err error
+	signer, err = token.NewSigner(priv, pub)
+	if err != nil {
+		log.Fatalf("Error creating the token signer: %v", err)
+	}
+	verifier, err = token.NewVerifier(pub)
+	if err != nil {
+		log.Fatalf("Error creating the token verifier: %v", err)
+	}
+
 	r := mux.NewRouter()
-	r.HandleFunc(*apiRoot+"/token/login", loginHandler).Methods("POST")
+	r.HandleFunc(*apiRoot+"/token/issue", issueHandler).Methods("POST")
+
 	srv := &http.Server{
 		Handler: r,
 		Addr:    *ip,
