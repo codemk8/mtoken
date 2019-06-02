@@ -1,3 +1,5 @@
 vendor/
 .vscode/
 mtoken
+rsa.priv
+rsa.pub

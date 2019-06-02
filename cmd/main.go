@@ -51,7 +51,10 @@ func issueHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Generate a token
-	claims := jwt.Claims{}
+	expiry := jwt.NewNumericDate(time.Now().AddDate(0, 1, 0)) // add a month
+	claims := jwt.Claims{Issuer: username,
+		Subject: "yourapp",
+		Expiry:  expiry}
 	jwt, err := signer.Sign(&claims)
 	if err != nil {
 		fmt.Printf("Internal error %v", err)
