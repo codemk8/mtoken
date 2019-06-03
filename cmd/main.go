@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/codemk8/mtoken/pkg/token"
@@ -61,7 +62,34 @@ func issueHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		return
 	}
+	//http.SetCookie(w, &http.Cookie{
+	//	Name:    "token",
+	//	Value:   tokenString,
+	//	Expires: expirationTime,
+	//})
 	w.Write([]byte(*jwt))
+	return
+}
+
+func authHandler(w http.ResponseWriter, r *http.Request) {
+	authorizationHeader := r.Header.Get("authorization")
+	if authorizationHeader != "" {
+		bearerToken := strings.Split(authorizationHeader, " ")
+		if len(bearerToken) == 2 {
+			claims, err := verifier.Verify(&bearerToken[1])
+			if err != nil {
+				fmt.Printf("Invalid token %v", err)
+				http.Error(w, "Invalid token", http.StatusUnauthorized)
+				return
+			}
+			if (int64)(*claims.Expiry) < time.Now().Unix() {
+				fmt.Printf("Token expired")
+				http.Error(w, "Token expired", http.StatusUnauthorized)
+			}
+			return
+		}
+	}
+	http.Error(w, "Invalid input", http.StatusUnauthorized)
 	return
 }
 
@@ -81,6 +109,7 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc(*apiRoot+"/token/issue", issueHandler).Methods("POST")
+	r.HandleFunc(*apiRoot+"/token/auth", authHandler).Methods("GET")
 
 	srv := &http.Server{
 		Handler: r,

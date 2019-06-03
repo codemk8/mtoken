@@ -23,7 +23,7 @@ func NewVerifier(pubKey *rsa.PublicKey) (Verifier, error) {
 func (j *joseVerifier) Verify(token *string) (*jwt.Claims, error) {
 	parsedJWT, err := jwt.ParseSigned(*token)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	resultCl := jwt.Claims{}
 	err = parsedJWT.Claims(j.pubKey, &resultCl)
