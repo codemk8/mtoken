@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"flag"
 	"log"
 	"net/http"
@@ -69,7 +70,7 @@ func issueHandler(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "Internal Error", http.StatusInternalServerError)
 					return
 				}
-				glog.Infof("generated jwt %s.", *jwt)
+				glog.Info("generated jwt.")
 				w.Write([]byte(*jwt))
 				return
 			}
@@ -124,6 +125,12 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 				glog.Errorf("Token expired")
 				http.Error(w, "Token expired", http.StatusUnauthorized)
 			}
+			claimBytes, err := json.Marshal(claims)
+			if err != nil {
+				glog.Warningf("Error marshal claims: %v", err)
+				http.Error(w, "Internal error.", http.StatusInternalServerError)
+			}
+			w.Write(claimBytes)
 			return
 		}
 	}
