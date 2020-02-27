@@ -10,3 +10,6 @@ test: pkg/*/*.go
 
 clean:
 	-rm -rf bin/*
+
+vendor:
+	go mod vendor
