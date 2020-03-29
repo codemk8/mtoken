@@ -21,6 +21,7 @@ var apiRoot = flag.String("api_root", "/v1", "api root path")
 var appName = flag.String("app_name", "yourapp", "app name")
 var privKeyFile = flag.String("priv_key", "", "private key file path")
 var pubKeyFile = flag.String("pub_key", "", "public key file path")
+var cmdClient = flag.String("cmd_agent", "CmdLineAgent", "Command line agent name for longer token")
 var signer token.Signer
 var verifier token.Verifier
 
@@ -34,8 +35,8 @@ func redirectPolicyFunc(req *http.Request, via []*http.Request) error {
 	return nil
 }
 
-func genToken(username string) (*string, error) {
-	expiry := jwt.NewNumericDate(time.Now().Add(time.Minute * time.Duration(10)))
+func genToken(username string, expiryInMin int) (*string, error) {
+	expiry := jwt.NewNumericDate(time.Now().Add(time.Minute * time.Duration(expiryInMin)))
 	claims := jwt.Claims{Issuer: *appName,
 		Subject: username,
 		Expiry:  expiry}
@@ -44,6 +45,16 @@ func genToken(username string) (*string, error) {
 		glog.Errorf("Internal error %v", err)
 	}
 	return jwt, err
+}
+
+func determineExpiry(userAgent string) int {
+	expiry := 10
+	if userAgent == *cmdClient {
+		// 30 days for command line client tool
+		glog.Infof("Extend expiry to a month for %s.", *cmdClient)
+		expiry = 24 * 60 * 30
+	}
+	return expiry
 }
 
 func issueHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,13 +75,15 @@ func issueHandler(w http.ResponseWriter, r *http.Request) {
 					http.Error(w, "Token expired", http.StatusUnauthorized)
 					return
 				}
-				jwt, err := genToken(claims.Subject)
+				// determine the expiry according to the client type
+				expiry := determineExpiry(r.Header.Get("User-Agent"))
+				jwt, err := genToken(claims.Subject, expiry)
 				if err != nil {
 					glog.Errorf("Internal error %v", err)
 					http.Error(w, "Internal Error", http.StatusInternalServerError)
 					return
 				}
-				glog.Info("generated jwt.")
+				// glog.Info("generated jwt.")
 				w.Write([]byte(*jwt))
 				return
 			}
@@ -95,8 +108,8 @@ func issueHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Generate a token
-	// expiry := jwt.NewNumericDate(time.Now().AddDate(0, 1, 0)) // add a month
-	jwt, err := genToken(username)
+	expiry := determineExpiry(r.Header.Get("User-Agent"))
+	jwt, err := genToken(username, expiry)
 	if err != nil {
 		http.Error(w, "Internal Error", http.StatusInternalServerError)
 		return
