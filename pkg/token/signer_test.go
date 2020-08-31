@@ -31,7 +31,7 @@ func TestNewSigner(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			priv, pub := GenerateRsaKeyPairIfNotExist(tt.args.privFile, tt.args.pubFile, false)
+			priv, pub := GenerateRsaKeyPairIfNotExist(tt.args.privFile, tt.args.pubFile, ".", false)
 			_, err := NewSigner(priv, pub)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewSigner() error = %v, wantErr %v", err, tt.wantErr)
@@ -42,7 +42,7 @@ func TestNewSigner(t *testing.T) {
 }
 
 func TestSignerVerifier(t *testing.T) {
-	priv, pub := GenerateRsaKeyPairIfNotExist("/tmp/rsa.priv", "/tmp/rsa.pub", false)
+	priv, pub := GenerateRsaKeyPairIfNotExist("/tmp/rsa.priv", "/tmp/rsa.pub", ".", false)
 	signer, err := NewSigner(priv, pub)
 	if err != nil {
 		panic(err)

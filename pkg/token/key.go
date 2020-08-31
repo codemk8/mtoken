@@ -77,12 +77,12 @@ func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
 	return nil, errors.New("Key type is not RSA")
 }
 
-func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, save bool) (*rsa.PrivateKey, *rsa.PublicKey) {
+func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, keyDir string, save bool) (*rsa.PrivateKey, *rsa.PublicKey) {
 	if privKeyFile == "" {
-		privKeyFile = "./rsa.priv"
+		privKeyFile = keyDir + "/rsa.priv"
 	}
 	if pubKeyFile == "" {
-		pubKeyFile = "./rsa.pub"
+		pubKeyFile = keyDir + "/rsa.pub"
 	}
 	found := true
 	if _, err := os.Stat(privKeyFile); os.IsNotExist(err) {

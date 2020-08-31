@@ -29,7 +29,7 @@ func TestGenerateRsaKeyPairIfNotExist(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := GenerateRsaKeyPairIfNotExist(tt.args.privKeyFile, tt.args.pubKeyFile, false)
+			got, got1 := GenerateRsaKeyPairIfNotExist(tt.args.privKeyFile, tt.args.pubKeyFile, ".", false)
 			assert.True(t, got != nil)
 			assert.True(t, got1 != nil)
 			/*

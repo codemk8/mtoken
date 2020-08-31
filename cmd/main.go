@@ -21,6 +21,7 @@ var apiRoot = flag.String("api_root", "/v1", "api root path")
 var appName = flag.String("app_name", "yourapp", "app name")
 var privKeyFile = flag.String("priv_key", "", "private key file path")
 var pubKeyFile = flag.String("pub_key", "", "public key file path")
+var keyDir = flag.String("key_dir", ".", "the directory to store generated keys")
 var cmdClient = flag.String("cmd_agent", "CmdLineAgent", "Command line agent name for longer token")
 var signer token.Signer
 var verifier token.Verifier
@@ -48,7 +49,7 @@ func genToken(username string, expiryInMin int) (*string, error) {
 }
 
 func determineExpiry(userAgent string) int {
-	expiry := 10
+	expiry := 120
 	if userAgent == *cmdClient {
 		// 30 days for command line client tool
 		glog.Infof("Extend expiry to a month for %s.", *cmdClient)
@@ -119,7 +120,7 @@ func issueHandler(w http.ResponseWriter, r *http.Request) {
 	//	Value:   tokenString,
 	//	Expires: expirationTime,
 	//})
-	glog.Infof("generated jwt %s.", *jwt)
+	glog.Infof("generated jwt %s...", (*jwt)[0:10])
 	w.Write([]byte(*jwt))
 }
 
@@ -154,7 +155,7 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Parse()
 
-	priv, pub := token.GenerateRsaKeyPairIfNotExist(*privKeyFile, *pubKeyFile, true)
+	priv, pub := token.GenerateRsaKeyPairIfNotExist(*privKeyFile, *pubKeyFile, *keyDir, true)
 	var err error
 	signer, err = token.NewSigner(priv, pub)
 	if err != nil {
