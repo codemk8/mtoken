@@ -120,7 +120,7 @@ func issueHandler(w http.ResponseWriter, r *http.Request) {
 	//	Value:   tokenString,
 	//	Expires: expirationTime,
 	//})
-	glog.Infof("generated jwt %s...", (*jwt)[0:10])
+	glog.Infof("generated jwt for user %s.", username)
 	w.Write([]byte(*jwt))
 }
 
