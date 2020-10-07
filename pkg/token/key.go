@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"log"
+	"github.com/golang/glog"
 )
 
 func GenerateRsaKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
@@ -92,7 +92,7 @@ func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, keyDir 
 		found = false
 	}
 	if !found {
-		log.Printf("Rsa Key files (%s, %s) not found, regenerating.", privKeyFile, pubKeyFile)
+		glog.Infof("Rsa Key files (%s, %s) not found, regenerating.", privKeyFile, pubKeyFile)
 		priv, pub := GenerateRsaKeyPair()
 		privStr := ExportRsaPrivateKeyAsPemStr(priv)
 		pubStr, _ := ExportRsaPublicKeyAsPemStr(pub)
@@ -110,7 +110,7 @@ func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, keyDir 
 			}
 			defer fpub.Close()
 			fpub.WriteString(pubStr)
-			log.Printf("Saving RSA key pairs to %s and %s.", privKeyFile, pubKeyFile)
+			glog.Infof("Saving RSA key pairs to %s and %s.", privKeyFile, pubKeyFile)
 		}
 		return priv, pub
 	}
@@ -122,7 +122,7 @@ func GenerateRsaKeyPairIfNotExist(privKeyFile string, pubKeyFile string, keyDir 
 	if err != nil {
 		panic(err)
 	}
-	log.Printf("Reading RSA key pairs from %s and %s.", privKeyFile, pubKeyFile)
+	glog.Infof("Reading RSA key pairs from %s and %s.", privKeyFile, pubKeyFile)
 	priv, err := ParseRsaPrivateKeyFromPemStr(string(priStr))
 	if err != nil {
 		panic(err)
